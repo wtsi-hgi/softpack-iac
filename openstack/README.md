@@ -18,8 +18,8 @@ for DNS configuration.
 ### Initial Setup
 
 Before you can deploy the infrastructure, you must create a `terraform.tfvars`
-and set the required variables. An example `terraform.tfvars` is provided in 
-the `examples` directory
+file and set the required variables. An example `terraform.tfvars` is provided 
+in the `examples` directory
 
 | Variable                | Description                                                        |                                                                                                   
 |-------------------------|--------------------------------------------------------------------|
@@ -27,7 +27,7 @@ the `examples` directory
 | ssh_key                 | Path to your public key                                            |
 | ssh_key_name            | The name to use for creating the SSH keypair resource in OpenStack |
 | openstack_project       | The name of OpenStack project (formerly known as tenant)           |
-| infoblox_zone           | FQDN of you InfoBlox subzone                                       |
+| infoblox_zone           | FQDN of your InfoBlox subzone                                      |
 | infoblox_dns_view       | Infoblox DNS view                                                  |
 | infoblox_server         | Infoblox Grid Manager server's IP address or hostname              |
 | infoblox_username       | Infoblox username                                                  |
@@ -37,6 +37,18 @@ the `examples` directory
 | build_node_flavor       | Compute instance flavor for build nodes                            |
 | build_node_image        | Image to use for build nodes                                       |
 
+
+### Deployment and Provisioning
+
+Once you've created a `terraform.tfvars` file, you can deploy, provision and
+teardown the infrastructure using the following commands in the `openstack` 
+directory.
+
+| Command                           | Description                               |                                                                                                   
+|-----------------------------------|-------------------------------------------|
+| terraform apply                   | Create resources using terraform          | 
+| ansible-playbook ansible/main.yml | Provision the infrastructure with ansible |
+| terraform destroy                 | Teardown the infrastructure               |
 
 ### Mac Users on Apple Silicon
 

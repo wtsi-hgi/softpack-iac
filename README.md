@@ -11,7 +11,7 @@ This repository provides configurations for the deployment and teardown of
 
 The following platforms are currently supported:
 
-- [OpenStack](https://www.openstack.org)
+- [OpenStack](https://github.com/wtsi-hgi/softpack-iac/tree/main/openstack)
 
 ## Contributing
 
