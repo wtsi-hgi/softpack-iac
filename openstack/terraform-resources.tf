@@ -1,9 +1,9 @@
-variable "prefix" {}
-variable "ssh_key" {}
-variable "ssh_key_name" {}
+variable "prefix" { type = string }
+variable "ssh_key" { type = string }
+variable "ssh_key_name" { type = string }
 
-variable "infoblox_zone" {}
-variable "infoblox_dns_view" {}
+variable "infoblox_zone" { type = string }
+variable "infoblox_dns_view" { type = string }
 
 #-------------------------------------------------------------------------------
 # create keypair
@@ -16,8 +16,8 @@ resource "openstack_compute_keypair_v2" "public-key" {
 #-------------------------------------------------------------------------------
 # create resources for build controller
 
-variable "build_controller_image" {}
-variable "build_controller_flavor" {}
+variable "build_controller_image" { type = string }
+variable "build_controller_flavor" { type = string }
 
 resource "openstack_compute_instance_v2" "build-controller" {
   name        = "${var.prefix}-build-controller"
@@ -53,9 +53,9 @@ resource "infoblox_a_record" "build-controller-a-record" {
 #-------------------------------------------------------------------------------
 # create resources for build node(s)
 
-variable "build_node_count" {}
-variable "build_node_image" {}
-variable "build_node_flavor" {}
+variable "build_node_count" { type = number }
+variable "build_node_image" { type = string}
+variable "build_node_flavor" { type = string }
 
 locals {
   build_nodes = {
@@ -86,13 +86,13 @@ resource "openstack_networking_floatingip_v2" "build-node-ip" {
 
 resource "openstack_compute_floatingip_associate_v2" "build-node-ip" {
   count       = var.build_node_count
-  floating_ip = "${element(openstack_networking_floatingip_v2.build-node-ip.*.address, count.index)}"
-  instance_id = "${element(openstack_compute_instance_v2.build-node.*.id, count.index)}"
+  floating_ip = openstack_networking_floatingip_v2.build-node-ip[count.index].address
+  instance_id = openstack_compute_instance_v2.build-node[count.index].id
 }
 
 resource "infoblox_a_record" "build-node-a-record" {
   count    = var.build_node_count
   dns_view = var.infoblox_dns_view
   fqdn     = "${var.prefix}-${values(local.build_nodes)[count.index]}.${var.infoblox_zone}"
-  ip_addr  = "${element(openstack_networking_floatingip_v2.build-node-ip.*.address, count.index)}"
+  ip_addr  = openstack_networking_floatingip_v2.build-node-ip[count.index].address
 }

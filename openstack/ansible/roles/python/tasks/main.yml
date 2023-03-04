@@ -1,0 +1,38 @@
+- name: Install python
+  become: true
+  vars:
+    current: 3.8
+    version: 3.11
+  block:
+    - name: Add python repository
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+
+    - name: Install python {{ version }}
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - python{{ version }}
+        - python{{ version }}-dev
+
+    - name: Set python default to {{ version }}
+      community.general.alternatives:
+        name: python
+        path: /usr/bin/python{{ item.version }}
+        link: /usr/bin/python
+        state: present
+        priority: "{{ item.priority }}"
+      loop:
+        - version: "{{ current }}"
+          priority: 1
+        - version: "{{ version }}"
+          priority: 2
+
+    - name: Install venv
+      ansible.builtin.apt:
+        name: python{{ item }}-venv
+      loop:
+        - "{{ current }}"
+        - "{{ version }}"

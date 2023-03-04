@@ -1,10 +1,9 @@
-- name: install and update apt packages
+- name: Install and update apt packages
   become: true
   block:
-  - name: install packages
-    apt:
-      name: "{{ item }}"
-      state: present
-    loop:
-      - nginx
-
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - nginx

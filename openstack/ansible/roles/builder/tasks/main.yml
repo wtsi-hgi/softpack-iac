@@ -1,0 +1,15 @@
+- name: Deploy softpack builder
+  become: true
+  block:
+    - name: Install python packages
+      vars:
+        version: v0.1.0
+        url: https://github.com/wtsi-hgi/softpack-builder@{{ version }}
+      ansible.builtin.pip:
+        name: "{{ item }}"
+        virtualenv: /opt/softpack-builder
+        virtualenv_command: python -m venv
+      loop:
+        - pip >= 23.0.1
+        - poetry
+  #      - git+{{ url }}

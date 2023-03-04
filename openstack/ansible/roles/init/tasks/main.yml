@@ -1,14 +1,26 @@
-- name: install and update apt packages
+- name: Install and update apt packages
   become: true
   block:
-  - name: upgrade apt
-    apt:
-      upgrade: yes
-      update_cache: yes
+    - name: Upgrade apt
+      ansible.builtin.apt:
+        upgrade: true
+        update_cache: true
+      register: cache_updated
 
-  - name: install packages
-    apt:
-      name: "{{ item }}"
-      state: present
-    loop:
-      - zsh
+    - name: Check if reboot required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot if required
+      ansible.builtin.reboot:
+      when: reboot_required.stat.exists
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - build-essential
+        - cmake
+        - zsh

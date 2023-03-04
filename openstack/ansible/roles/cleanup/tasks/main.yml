@@ -1,6 +1,6 @@
-- name: cleanup
+- name: Cleanup
   become: true
   block:
-  - name: autoremove unused apt packages
-    apt:
-      autoremove: yes
+    - name: Autoremove unused apt packages
+      ansible.builtin.apt:
+        autoremove: true

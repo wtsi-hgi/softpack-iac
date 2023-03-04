@@ -1,0 +1,26 @@
+name: Lint Terraform and Ansible sources
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: openstack
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Run terraform-lint
+        uses: actionshub/terraform-lint@main
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint-action@main

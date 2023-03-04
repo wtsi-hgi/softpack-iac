@@ -1,0 +1,22 @@
+---
+- name: Provision all hosts
+  hosts: all
+  roles:
+    - init
+
+- name: Provision build-controller
+  hosts: build-controller
+  roles:
+    - nginx
+    - python
+    - builder
+
+- name: Provision build-nodes
+  hosts: build_nodes
+  roles:
+    - python
+
+- name: Cleanup all hosts
+  hosts: all
+  roles:
+    - cleanup
