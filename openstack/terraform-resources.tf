@@ -54,12 +54,12 @@ resource "infoblox_a_record" "build-controller-a-record" {
 # create resources for build node(s)
 
 variable "build_node_count" { type = number }
-variable "build_node_image" { type = string}
+variable "build_node_image" { type = string }
 variable "build_node_flavor" { type = string }
 
 locals {
   build_nodes = {
-    for i in range(var.build_node_count) : i => format("build-node-%02d", i+1)
+    for i in range(var.build_node_count) : i => format("build-node-%02d", i + 1)
   }
 }
 
