@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox tox-gh-actions
 
-      - name: test with tox
+      - name: Lint with tox
         run:
-          tox
+          tox -vvv
 
