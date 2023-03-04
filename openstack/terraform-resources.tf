@@ -1,6 +1,6 @@
 variable "prefix" { type = string }
 variable "ssh_key" { type = string }
-variable "ssh_key_name" {  }
+variable "ssh_key_name" { type = string }
 
 variable "infoblox_zone" { type = string }
 variable "infoblox_dns_view" { type = string }

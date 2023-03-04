@@ -27,5 +27,5 @@ jobs:
 
       - name: Lint with tox
         run:
-          tox -vvv
+          tox
 
