@@ -1,0 +1,12 @@
+domain: aa27.sanger.ac.uk
+
+path: /opt/softpack-builder
+venv_path: "{{ path }}/.venv"
+
+username: "{{ ansible_facts['env']['USER'] }}"
+
+builder_repo: git@github.com:altaf-ali/softpack-builder.git
+builder_version: main
+
+prefect_service: prefect-server
+prefect_service_filename: "{{ prefect_service }}.service"

@@ -1,14 +1,14 @@
 all:
   hosts:
     build-controller:
-      ansible_host: ${build_controller_ip_address}
+      ansible_host: ${build_controller_hostname}
       ansible_user: ubuntu
 
   children:
     build_nodes:
       hosts:
-        %{ for node, ip_address in build_nodes}${node}:
-          ansible_host: ${ip_address}
+        %{ for node, hostname in build_node_hostnames}${node}:
+          ansible_host: ${hostname}
           ansible_user: ubuntu
 
         %{ endfor }

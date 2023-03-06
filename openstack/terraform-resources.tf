@@ -61,6 +61,11 @@ locals {
   build_nodes = {
     for i in range(var.build_node_count) : i => format("build-node-%02d", i + 1)
   }
+  build_controller_hostname = "${var.prefix}-build-controller.${var.infoblox_zone}"
+  build_node_hostnames = tomap({
+    for i in range(var.build_node_count) :
+    local.build_nodes[i] => "${var.prefix}-${local.build_nodes[i]}.${var.infoblox_zone}"
+  })
 }
 
 resource "openstack_compute_instance_v2" "build-node" {

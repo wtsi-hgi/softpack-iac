@@ -1,0 +1,11 @@
+[Unit]
+Description=Prefect Server
+
+[Service]
+User={{ username }}
+WorkingDirectory={{ path }}
+ExecStart=/bin/bash -c 'source {{ venv_path }}/bin/activate && {{ venv_path }}/bin/prefect server start'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

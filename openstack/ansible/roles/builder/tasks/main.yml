@@ -1,15 +1,88 @@
-- name: Deploy softpack builder
+- name: Create directory for development
   become: true
+  ansible.builtin.file:
+    path: "{{ path }}"
+    state: directory
+    owner: "{{ username }}"
+    mode: u=rwx,o=rx,g=rx
+
+- name: Clone git repo
+  ansible.builtin.git:
+    repo: "{{ builder_repo }}"
+    version: "{{ builder_version }}"
+    dest: "{{ path }}"
+    accept_hostkey: true
+
+- name: Install python packages
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    virtualenv: "{{ venv_path }}"
+    virtualenv_command: python -m venv
+  loop:
+    - pip >= 23.0.1
+    - poetry
+
+- name: Install dependencies
+  ansible.builtin.command: "{{ venv_path }}/bin/poetry install -E dev"
+  args:
+    chdir: "{{ path }}"
+    creates: "{{ venv_path }}/bin/softpack-builder"
+
+- name: Setup prefect server
+  become: true
+  vars:
+    systemd_lib: /lib/systemd/system
+    systemd_etc: /etc/systemd/system/multi-user.target.wants
+
   block:
-    - name: Install python packages
-      vars:
-        version: v0.1.0
-        url: https://github.com/wtsi-hgi/softpack-builder@{{ version }}
-      ansible.builtin.pip:
-        name: "{{ item }}"
-        virtualenv: /opt/softpack-builder
-        virtualenv_command: python -m venv
-      loop:
-        - pip >= 23.0.1
-        - poetry
-  #      - git+{{ url }}
+    - name: Setup prefect server as a systemd service
+      ansible.builtin.template:
+        src: files/{{ prefect_service_filename }}
+        dest: "{{ systemd_lib }}"
+        mode: u=rw,g=r,o=r
+
+    - name: Enable service
+      ansible.builtin.file:
+        src: "{{ systemd_lib }}/{{ prefect_service_filename }}"
+        dest: "{{ systemd_etc }}/{{ prefect_service_filename }}"
+        state: link
+
+    - name: Setup prefect server site
+      ansible.builtin.copy:
+        src: files/prefect-server
+        dest: /etc/nginx/sites-available
+        mode: u=rw,g=r,o=r
+
+    - name: Enable prefect server site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/prefect-server
+        dest: /etc/nginx/sites-enabled/prefect-server
+        state: link
+
+    - name: Remove default site
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Restart nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+
+- name: Configure prefect service
+  vars:
+    hostname: "{{ ansible_hostname }}.{{ domain }}"
+  ansible.builtin.shell: |
+    source "{{ venv_path }}/bin/activate"
+    prefect config set PREFECT_API_URL=http://{{ hostname }}/api
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Start prefect service
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ prefect_service }}"
+    daemon_reload: true
+    enabled: true
+    state: started
