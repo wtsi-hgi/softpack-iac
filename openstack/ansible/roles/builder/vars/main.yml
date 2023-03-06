@@ -5,7 +5,7 @@ venv_path: "{{ path }}/.venv"
 
 username: "{{ ansible_facts['env']['USER'] }}"
 
-builder_repo: git@github.com:altaf-ali/softpack-builder.git
+builder_repo: https://github.com/wtsi-hgi/softpack-builder.git
 builder_version: main
 
 prefect_service: prefect-server
