@@ -1,0 +1,74 @@
+- name: Install and update apt packages
+  become: true
+  block:
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - avahi-daemon
+        - avahi-utils
+        - avahi-dnsconfd
+        - mdns-scan
+        - apt-transport-https
+        - libnss-ldapd
+
+    - name: Update /etc/pam.d/common-session
+      ansible.builtin.lineinfile:
+        path: /etc/pam.d/common-session
+        line: session optional pam_mkhomedir.so
+        state: present
+
+    - name: Update /etc/nslcd.conf - LDAP config
+      ansible.builtin.replace:
+        path: /etc/nslcd.conf
+        regexp: "{{ item.search }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - search: base dc=openstacklocal
+          replace: base {{ ldap_base_dn }}
+        - search: uri ldap://127.0.0.1/
+          replace: uri {{ ldap_uri }}
+        - search: "#tls_reqcert never"
+          replace: tls_reqcert demand
+
+    - name: Update /etc/nslcd.conf - user config
+      ansible.builtin.lineinfile:
+        path: /etc/nslcd.conf
+        line: "{{ item }}"
+      loop:
+        - nss_min_uid 1001
+        - map passwd homeDirectory "/home/$uid"
+        - filter passwd ({{ ldap_filter }})
+
+    - name: Update /etc/nsswitch.conf
+      ansible.builtin.replace:
+        path: /etc/nsswitch.conf
+        regexp: files systemd
+        replace: files ldap
+
+    - name: Update /etc/nsswitch.conf
+      ansible.builtin.lineinfile:
+        path: /etc/nsswitch.conf
+        line: "shadow: files ldap"
+
+    - name: Update /etc/ssh/sshd_config
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: PasswordAuthentication no
+        replace: PasswordAuthentication yes
+
+    - name: Update /etc/hosts
+      ansible.builtin.replace:
+        path: /etc/hosts
+        regexp: localhost$
+        replace: localhost {{ ansible_hostname }}
+
+    - name: Restart services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - nscd
+        - nslcd
+        - sshd

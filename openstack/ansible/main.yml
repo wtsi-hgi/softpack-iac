@@ -6,9 +6,16 @@
 
 - name: Provision build-controller
   hosts: build-controller
+  vars_files:
+    - defaults.yml
+    - vars.yml
   roles:
     - nginx
     - python
+    - spack
+    - certificates
+    - ldap
+    - artifacts
     - builder
 
 - name: Provision build-nodes

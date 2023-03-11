@@ -1,0 +1,11 @@
+# override these variables in vars.yml
+zone:
+domain:
+ssl_cert:
+artifacts_repo:
+
+ldap_uri:
+ldap_base_dn:
+ldap_filter:
+
+username: "{{ ansible_facts['env']['USER'] }}"

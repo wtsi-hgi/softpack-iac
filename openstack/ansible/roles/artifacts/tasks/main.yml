@@ -1,0 +1,9 @@
+- name: Create directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ username }}"
+    mode: u=rwx,o=rx,g=rx
+  loop:
+    - "{{ artifacts_path }}"

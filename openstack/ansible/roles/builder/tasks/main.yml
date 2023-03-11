@@ -1,32 +1,35 @@
-- name: Create directory for development
+- name: Create directories
   become: true
   ansible.builtin.file:
-    path: "{{ path }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ username }}"
     mode: u=rwx,o=rx,g=rx
+  loop:
+    - "{{ builder_path }}"
+    - "{{ prefect_home }}"
 
 - name: Clone git repo
   ansible.builtin.git:
     repo: "{{ builder_repo }}"
     version: "{{ builder_version }}"
-    dest: "{{ path }}"
+    dest: "{{ builder_path }}"
     accept_hostkey: true
 
 - name: Install python packages
   ansible.builtin.pip:
     name: "{{ item }}"
-    virtualenv: "{{ venv_path }}"
+    virtualenv: "{{ builder_venv }}"
     virtualenv_command: python -m venv
   loop:
     - pip >= 23.0.1
     - poetry
 
 - name: Install dependencies
-  ansible.builtin.command: "{{ venv_path }}/bin/poetry install -E dev"
+  ansible.builtin.command: "{{ builder_venv }}/bin/poetry install -E dev"
   args:
-    chdir: "{{ path }}"
-    creates: "{{ venv_path }}/bin/softpack-builder"
+    chdir: "{{ builder_path }}"
+    creates: "{{ builder_venv }}/bin/softpack-builder"
 
 - name: Setup prefect server
   become: true
@@ -71,9 +74,10 @@
 
 - name: Configure prefect service
   vars:
-    hostname: "{{ ansible_hostname }}.{{ domain }}"
+    hostname: "{{ ansible_hostname }}.{{ zone }}{{ domain }}"
   ansible.builtin.shell: |
-    source "{{ venv_path }}/bin/activate"
+    source "{{ builder_venv }}/bin/activate"
+    prefect config set PREFECT_HOME={{ prefect_home }}
     prefect config set PREFECT_API_URL=http://{{ hostname }}/api
   args:
     executable: /bin/bash

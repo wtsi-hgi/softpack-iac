@@ -1,12 +1,9 @@
-domain: aa27.sanger.ac.uk
-
-path: /opt/softpack-builder
-venv_path: "{{ path }}/.venv"
-
-username: "{{ ansible_facts['env']['USER'] }}"
+builder_path: /opt/softpack-builder
+builder_venv: "{{ path }}/.venv"
 
 builder_repo: https://github.com/wtsi-hgi/softpack-builder.git
-builder_version: main
+builder_version: develop
 
+prefect_home: /opt/prefect
 prefect_service: prefect-server
 prefect_service_filename: "{{ prefect_service }}.service"

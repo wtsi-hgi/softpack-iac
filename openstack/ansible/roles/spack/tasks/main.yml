@@ -1,0 +1,6 @@
+- name: Install spack
+  become: true
+  ansible.builtin.git:
+    repo: "{{ spack_repo }}"
+    version: "{{ spack_version }}"
+    dest: "{{ spack_path }}"
