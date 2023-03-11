@@ -1,5 +1,5 @@
 builder_path: /opt/softpack-builder
-builder_venv: "{{ path }}/.venv"
+builder_venv: "{{ builder_path }}/.venv"
 
 builder_repo: https://github.com/wtsi-hgi/softpack-builder.git
 builder_version: develop

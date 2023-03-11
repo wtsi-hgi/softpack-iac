@@ -74,7 +74,7 @@
 
 - name: Configure prefect service
   vars:
-    hostname: "{{ ansible_hostname }}.{{ zone }}{{ domain }}"
+    hostname: "{{ ansible_hostname }}.{{ dns_zone }}"
   ansible.builtin.shell: |
     source "{{ builder_venv }}/bin/activate"
     prefect config set PREFECT_HOME={{ prefect_home }}
