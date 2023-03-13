@@ -4,6 +4,9 @@ builder_venv: "{{ builder_path }}/.venv"
 builder_repo: https://github.com/wtsi-hgi/softpack-builder.git
 builder_version: develop
 
-prefect_home: /opt/prefect
+prefect_home: /var/run/prefect
+prefect_profile: .prefect/profiles.toml
+prefect_profile_path: "{{ ansible_env.HOME }}/{{ prefect_profile }}"
+
 prefect_service: prefect-server
 prefect_service_filename: "{{ prefect_service }}.service"

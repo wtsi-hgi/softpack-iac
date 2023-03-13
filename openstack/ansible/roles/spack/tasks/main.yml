@@ -1,6 +1,14 @@
 - name: Install spack
   become: true
-  ansible.builtin.git:
-    repo: "{{ spack_repo }}"
-    version: "{{ spack_version }}"
-    dest: "{{ spack_path }}"
+  block:
+    - name: Install spack {{ spack_version }}
+      ansible.builtin.git:
+        repo: "{{ spack_repo }}"
+        version: "{{ spack_version }}"
+        dest: "{{ spack_path }}"
+
+    - name: Copy spack config
+      ansible.builtin.copy:
+        src: files/.spack
+        dest: "{{ config_path }}"
+        mode: u=rw,o=r,g=r

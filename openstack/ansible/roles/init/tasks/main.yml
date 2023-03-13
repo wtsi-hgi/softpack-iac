@@ -22,5 +22,6 @@
         state: present
       loop:
         - build-essential
+        - gfortran
         - cmake
         - zsh

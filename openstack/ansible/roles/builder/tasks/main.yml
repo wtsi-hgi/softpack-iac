@@ -1,13 +1,15 @@
 - name: Create directories
   become: true
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ item.path }}"
     state: directory
     owner: "{{ username }}"
-    mode: u=rwx,o=rx,g=rx
+    mode: "{{ item.mode }}"
   loop:
-    - "{{ builder_path }}"
-    - "{{ prefect_home }}"
+    - path: "{{ builder_path }}"
+      mode: u=rwx,o=rx,g=rx
+    - path: "{{ prefect_home }}"
+      mode: u=rwx,o=rwx,g=rwx
 
 - name: Clone git repo
   ansible.builtin.git:
@@ -76,12 +78,20 @@
   vars:
     hostname: "{{ ansible_hostname }}.{{ dns_zone }}"
   ansible.builtin.shell: |
-    source "{{ builder_venv }}/bin/activate"
-    prefect config set PREFECT_HOME={{ prefect_home }}
+    source {{ builder_venv }}/bin/activate
     prefect config set PREFECT_API_URL=http://{{ hostname }}/api
+    prefect config set PREFECT_HOME={{ prefect_home }}
   args:
     executable: /bin/bash
-  changed_when: false
+    creates: "{{ prefect_profile_path }}"
+
+- name: Copy prefect config
+  become: true
+  ansible.builtin.copy:
+    src: "{{ prefect_profile_path }}"
+    remote_src: true
+    dest: "{{ config_path }}/{{ prefect_profile | dirname }}/"
+    mode: u=rw,o=r,g=r
 
 - name: Start prefect service
   become: true

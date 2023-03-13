@@ -10,11 +10,12 @@
     - defaults.yml
     - vars.yml
   roles:
+    - certificates
+    - ldap
     - nginx
     - python
     - spack
-    - certificates
-    - ldap
+    - singularity
     - artifacts
     - builder
 

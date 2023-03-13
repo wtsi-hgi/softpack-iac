@@ -1,0 +1,3 @@
+config:
+  install_tree: ~/.spack
+  source_cache: ~/.spack/cache

@@ -1,0 +1,7 @@
+- name: Install singularity
+  become: true
+  block:
+    - name: Install singularity {{ singularity_version }}
+      ansible.builtin.apt:
+        deb: "{{ singularity_repo }}"
+        state: present

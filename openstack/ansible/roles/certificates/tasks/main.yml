@@ -3,7 +3,7 @@
   block:
     - name: Copy certificate
       ansible.builtin.copy:
-        src: files/ssl/certs/{{ ssl_cert }}
+        src: etc/ssl/certs/{{ ssl_cert }}
         dest: /usr/share/ca-certificates/{{ domain }}/
         mode: u=rw
 

@@ -8,4 +8,5 @@ ldap_uri:
 ldap_base_dn:
 ldap_filter:
 
-username: "{{ ansible_facts['env']['USER'] }}"
+config_path: /opt/config/user
+username: "{{ ansible_env.USER }}"
