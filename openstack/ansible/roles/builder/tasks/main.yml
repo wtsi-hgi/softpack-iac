@@ -8,8 +8,6 @@
   loop:
     - path: "{{ builder_path }}"
       mode: u=rwx,o=rx,g=rx
-    - path: "{{ prefect_home }}"
-      mode: u=rwx,o=rwx,g=rwx
     - path: "{{ builder_config | dirname }}"
       mode: u=rwx,g=-,o=-
 

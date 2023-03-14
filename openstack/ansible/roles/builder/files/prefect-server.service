@@ -3,6 +3,7 @@ Description=Prefect Server
 
 [Service]
 User={{ username }}
+RuntimeDirectory=prefect
 WorkingDirectory={{ builder_path }}
 Environment=PATH={{ builder_venv }}/bin:/usr/local/bin:/usr/bin
 ExecStart={{ builder_venv }}/bin/prefect server start
