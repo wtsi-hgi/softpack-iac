@@ -1,14 +1,19 @@
 - name: Install spack
   become: true
-  block:
-    - name: Install spack {{ spack_version }}
-      ansible.builtin.git:
-        repo: "{{ spack_repo }}"
-        version: "{{ spack_version }}"
-        dest: "{{ spack_path }}"
+  ansible.builtin.git:
+    repo: "{{ spack_repo }}"
+    version: "{{ spack_version }}"
+    dest: "{{ spack_path }}"
 
-    - name: Copy spack config
-      ansible.builtin.copy:
-        src: files/.spack
-        dest: "{{ config_path }}"
-        mode: u=rw,o=r,g=r
+- name: Copy spack config
+  become: "{{ item.become }}"
+  ansible.builtin.copy:
+    src: files/.spack
+    dest: "{{ item.dest }}"
+    mode: u=rw,o=r,g=r
+    directory_mode: u=rwx,o=rx,g=rx
+  loop:
+    - dest: "{{ config.user }}"
+      become: true
+    - dest: "{{ ansible_env.HOME }}"
+      become: false

@@ -1,4 +1,4 @@
-- name: Install and update apt packages
+- name: Install Nginx
   become: true
   block:
     - name: Install packages

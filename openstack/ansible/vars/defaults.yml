@@ -1,12 +1,40 @@
 # override these variables in vars.yml
-domain:
-dns_zone:
-ssl_cert:
-artifacts_repo:
 
-ldap_uri:
-ldap_base_dn:
-ldap_filter:
-
-config_path: /opt/config/user
 username: "{{ ansible_env.USER }}"
+
+config:
+  user: /opt/config/user
+
+spack_path: /opt/spack
+spack_repo: https://github.com/spack/spack.git
+spack_version: v0.19.1
+
+spack:
+  command: "{{ spack_path }}/bin/spack"
+  manifest:
+    container:
+      format: singularity
+      images:
+        os: ubuntu:20.04
+        spack: "{{ spack_version }}"
+
+dns:
+  domain:
+  zone:
+
+ssl:
+  cert:
+
+ldap:
+  uri:
+  base:
+  filter:
+
+artifacts:
+  repo:
+    uri:
+    token:
+
+  oras:
+    - username:
+      token:

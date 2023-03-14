@@ -1,11 +1,11 @@
 [Unit]
-Description=Prefect Server
+Description=SoftPack Builder
 
 [Service]
 User={{ username }}
 WorkingDirectory={{ builder_path }}
 Environment=PATH={{ builder_venv }}/bin:/usr/local/bin:/usr/bin
-ExecStart={{ builder_venv }}/bin/prefect server start
+ExecStart={{ builder_venv }}/bin/softpack-builder service
 Restart=always
 
 [Install]

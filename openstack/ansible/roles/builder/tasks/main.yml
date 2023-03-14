@@ -10,6 +10,8 @@
       mode: u=rwx,o=rx,g=rx
     - path: "{{ prefect_home }}"
       mode: u=rwx,o=rwx,g=rwx
+    - path: "{{ builder_config | dirname }}"
+      mode: u=rwx,g=-,o=-
 
 - name: Clone git repo
   ansible.builtin.git:
@@ -24,8 +26,18 @@
     virtualenv: "{{ builder_venv }}"
     virtualenv_command: python -m venv
   loop:
-    - pip >= 23.0.1
-    - poetry
+    - pip == 23.0.1
+    - poetry == 1.4.0
+
+- name: Write config file
+  vars:
+    config:
+      spack: "{{ spack }}"
+      artifacts: "{{ artifacts }}"
+  ansible.builtin.copy:
+    content: "{{ config | to_nice_yaml(indent=2) }}"
+    dest: "{{ builder_config }}"
+    mode: u=rw,g=-,o=-
 
 - name: Install dependencies
   ansible.builtin.command: "{{ builder_venv }}/bin/poetry install -E dev"
@@ -40,17 +52,21 @@
     systemd_etc: /etc/systemd/system/multi-user.target.wants
 
   block:
-    - name: Setup prefect server as a systemd service
+    - name: Setup systemd services
       ansible.builtin.template:
-        src: files/{{ prefect_service_filename }}
+        src: "{{ item }}"
         dest: "{{ systemd_lib }}"
         mode: u=rw,g=r,o=r
+      with_fileglob:
+        - files/*.service
 
-    - name: Enable service
+    - name: Enable services
       ansible.builtin.file:
-        src: "{{ systemd_lib }}/{{ prefect_service_filename }}"
-        dest: "{{ systemd_etc }}/{{ prefect_service_filename }}"
+        src: "{{ systemd_lib }}/{{ item | basename }}"
+        dest: "{{ systemd_etc }}/{{ item | basename }}"
         state: link
+      with_fileglob:
+        - files/*.service
 
     - name: Setup prefect server site
       ansible.builtin.copy:
@@ -63,6 +79,7 @@
         src: /etc/nginx/sites-available/prefect-server
         dest: /etc/nginx/sites-enabled/prefect-server
         state: link
+      register: prefect_server_site
 
     - name: Remove default site
       ansible.builtin.file:
@@ -73,10 +90,12 @@
       ansible.builtin.systemd:
         name: nginx
         state: restarted
+      when: prefect_server_site.changed
 
 - name: Configure prefect service
   vars:
-    hostname: "{{ ansible_hostname }}.{{ dns_zone }}"
+    domain: "{{ [dns.zone | default(''), dns.domain] | select() | join('.') }}"
+    hostname: "{{ ansible_hostname }}.{{ domain }}"
   ansible.builtin.shell: |
     source {{ builder_venv }}/bin/activate
     prefect config set PREFECT_API_URL=http://{{ hostname }}/api
@@ -85,18 +104,20 @@
     executable: /bin/bash
     creates: "{{ prefect_profile_path }}"
 
-- name: Copy prefect config
+- name: Copy prefect profile
   become: true
   ansible.builtin.copy:
     src: "{{ prefect_profile_path }}"
     remote_src: true
-    dest: "{{ config_path }}/{{ prefect_profile | dirname }}/"
+    dest: "{{ config.user }}/{{ prefect_profile | dirname }}/"
     mode: u=rw,o=r,g=r
 
-- name: Start prefect service
+- name: Start services
   become: true
   ansible.builtin.systemd:
-    name: "{{ prefect_service }}"
+    name: "{{ item | basename }}"
     daemon_reload: true
     enabled: true
     state: started
+  with_fileglob:
+    - files/*.service

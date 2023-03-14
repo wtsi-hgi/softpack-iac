@@ -1,4 +1,4 @@
-- name: Install and update apt packages
+- name: Configure LDAP authentication
   become: true
   block:
     - name: Install packages
@@ -26,9 +26,9 @@
         replace: "{{ item.replace }}"
       loop:
         - search: base dc=openstacklocal
-          replace: base {{ ldap_base_dn }}
+          replace: base {{ ldap.base }}
         - search: uri ldap://127.0.0.1/
-          replace: uri {{ ldap_uri }}
+          replace: uri {{ ldap.uri }}
         - search: "#tls_reqcert never"
           replace: tls_reqcert demand
 
@@ -39,13 +39,15 @@
       loop:
         - nss_min_uid 1001
         - map passwd homeDirectory "/home/$uid"
-        - filter passwd ({{ ldap_filter }})
+        - filter passwd ({{ ldap.filter }})
+      register: nslcd_conf
 
     - name: Update /etc/nsswitch.conf
       ansible.builtin.replace:
         path: /etc/nsswitch.conf
         regexp: files systemd
         replace: files ldap
+      register: nsswitch_conf
 
     - name: Update /etc/nsswitch.conf
       ansible.builtin.lineinfile:
@@ -57,6 +59,7 @@
         path: /etc/ssh/sshd_config
         regexp: PasswordAuthentication no
         replace: PasswordAuthentication yes
+      register: sshd_config
 
     - name: Update /etc/hosts
       ansible.builtin.replace:
@@ -66,9 +69,13 @@
 
     - name: Restart services
       ansible.builtin.service:
-        name: "{{ item }}"
+        name: "{{ item.service }}"
         state: restarted
+      when: "item.config.changed | bool"
       loop:
-        - nscd
-        - nslcd
-        - sshd
+        - service: nscd
+          config: "{{ nsswitch_conf }}"
+        - service: nslcd
+          config: "{{ nslcd_conf }}"
+        - service: sshd
+          config: "{{ sshd_config }}"

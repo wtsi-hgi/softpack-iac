@@ -3,14 +3,14 @@
   block:
     - name: Copy certificate
       ansible.builtin.copy:
-        src: etc/ssl/certs/{{ ssl_cert }}
-        dest: /usr/share/ca-certificates/{{ domain }}/
+        src: etc/ssl/certs/{{ ssl.cert }}
+        dest: /usr/share/ca-certificates/{{ dns.domain }}/
         mode: u=rw
 
     - name: Update /etc/ca-certificates.conf
       ansible.builtin.lineinfile:
         path: /etc/ca-certificates.conf
-        line: "{{ domain }}/{{ ssl_cert | basename }}"
+        line: "{{ dns.domain }}/{{ ssl.cert | basename }}"
         state: present
 
     - name: Update CA certificates

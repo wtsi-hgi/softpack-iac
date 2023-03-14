@@ -1,3 +1,0 @@
-spack_repo: https://github.com/spack/spack.git
-spack_version: v0.19.1
-spack_path: /opt/spack
