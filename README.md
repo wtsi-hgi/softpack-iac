@@ -1,6 +1,8 @@
 # softpack-iac
 
 [![Build Status](https://github.com/wtsi-hgi/softpack-iac/actions/workflows/tests.yml/badge.svg)](https://github.com/wtsi-hgi/softpack-iac/actions/workflows/tests.yml)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/wtsi-hgi/softpack-iac.svg)](http://isitmaintained.com/project/wtsi-hgi/softpack-iac "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/wtsi-hgi/softpack-iac.svg)](http://isitmaintained.com/project/wtsi-hgi/softpack-iac "Percentage of issues still open")
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 

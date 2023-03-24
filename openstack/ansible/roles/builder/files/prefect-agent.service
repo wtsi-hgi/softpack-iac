@@ -1,12 +1,13 @@
 [Unit]
-Description=SoftPack Builder
-Requires=prefect-agent.service prefect-server.service
+Description=Prefect Agent
+Requires=prefect-server.service
 
 [Service]
 User={{ username }}
+RuntimeDirectory=prefect
 WorkingDirectory={{ builder_path }}
 Environment=PATH={{ builder_venv }}/bin:/usr/local/bin:/usr/bin
-ExecStart={{ builder_venv }}/bin/softpack-builder service run
+ExecStart={{ builder_venv }}/bin/prefect agent start --hide-welcome --work-queue default
 Restart=always
 
 [Install]
