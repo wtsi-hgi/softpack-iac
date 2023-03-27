@@ -1,5 +1,6 @@
 [Unit]
 Description=Prefect Agent
+After=prefect-server.service
 Requires=prefect-server.service
 
 [Service]

@@ -40,42 +40,34 @@
         - nss_min_uid 1001
         - map passwd homeDirectory "/home/$uid"
         - filter passwd ({{ ldap.filter }})
-      register: nslcd_conf
+      notify:
+        - Restart nslcd
 
     - name: Update /etc/nsswitch.conf
       ansible.builtin.replace:
         path: /etc/nsswitch.conf
         regexp: files systemd
         replace: files ldap
-      register: nsswitch_conf
+      notify:
+        - Restart nscd
 
     - name: Update /etc/nsswitch.conf
       ansible.builtin.lineinfile:
         path: /etc/nsswitch.conf
         line: "shadow: files ldap"
+      notify:
+        - Restart nscd
 
     - name: Update /etc/ssh/sshd_config
       ansible.builtin.replace:
         path: /etc/ssh/sshd_config
         regexp: PasswordAuthentication no
         replace: PasswordAuthentication yes
-      register: sshd_config
+      notify:
+        - Restart sshd
 
     - name: Update /etc/hosts
       ansible.builtin.replace:
         path: /etc/hosts
         regexp: localhost$
         replace: localhost {{ ansible_hostname }}
-
-    - name: Restart services
-      ansible.builtin.service:
-        name: "{{ item.service }}"
-        state: restarted
-      when: "item.config.changed | bool"
-      loop:
-        - service: nscd
-          config: "{{ nsswitch_conf }}"
-        - service: nslcd
-          config: "{{ nslcd_conf }}"
-        - service: sshd
-          config: "{{ sshd_config }}"

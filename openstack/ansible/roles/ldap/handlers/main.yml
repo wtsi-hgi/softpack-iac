@@ -1,0 +1,17 @@
+- name: Restart nscd
+  become: true
+  ansible.builtin.service:
+    name: nscd
+    state: restarted
+
+- name: Restart nslcd
+  become: true
+  ansible.builtin.service:
+    name: nslcd
+    state: restarted
+
+- name: Restart sshd
+  become: true
+  ansible.builtin.service:
+    name: sshd
+    state: restarted

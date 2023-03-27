@@ -23,5 +23,5 @@
       loop:
         - build-essential
         - gfortran
-        - cmake
+        - net-tools
         - zsh

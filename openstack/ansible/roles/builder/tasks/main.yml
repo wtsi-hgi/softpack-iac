@@ -77,18 +77,13 @@
         src: /etc/nginx/sites-available/prefect-server
         dest: /etc/nginx/sites-enabled/prefect-server
         state: link
-      register: prefect_server_site
+      notify: Restart nginx
 
     - name: Remove default site
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
-
-    - name: Restart nginx service
-      ansible.builtin.systemd:
-        name: nginx
-        state: restarted
-      when: prefect_server_site.changed
+      notify: Restart nginx
 
 - name: Configure prefect service
   vars:

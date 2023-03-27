@@ -1,6 +1,7 @@
 [Unit]
 Description=SoftPack Builder
-Requires=prefect-agent.service prefect-server.service
+After=prefect-agent.service
+Requires=prefect-agent.service
 
 [Service]
 User={{ username }}
