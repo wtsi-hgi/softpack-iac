@@ -7,7 +7,7 @@ Requires=prefect-server.service
 User={{ username }}
 RuntimeDirectory=prefect
 WorkingDirectory={{ builder_path }}
-Environment=PATH={{ builder_venv }}/bin:/usr/local/bin:/usr/bin
+Environment=PATH={{ spack_path }}/bin:{{ builder_venv }}/bin:/usr/local/bin:/usr/bin
 ExecStart={{ builder_venv }}/bin/prefect agent start --hide-welcome --work-queue default
 Restart=always
 
