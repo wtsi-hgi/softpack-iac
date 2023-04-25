@@ -11,4 +11,3 @@ templates_path: /opt/spack-templates
 
 prefect_profile: .prefect/profiles.toml
 prefect_profile_path: "{{ ansible_env.HOME }}/{{ prefect_profile }}"
-

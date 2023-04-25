@@ -63,7 +63,8 @@
         src: files/lib/{{ item.path }}
         dest: /lib/{{ item.path }}
         mode: u=rw,g=r,o=r
-      with_filetree: files/lib
+      with_community.general.flattened:
+        - files/lib
       when: item.state == "file"
 
     - name: Enable systemd service
@@ -71,7 +72,8 @@
         src: /lib/{{ item.path }}
         dest: /etc/{{ item.path | dirname }}/multi-user.target.wants/{{ item.path | basename }}
         state: link
-      with_filetree: files/lib
+      with_community.general.flattened:
+        - files/lib
       when: item.state == 'file'
 
     - name: Setup prefect server site
