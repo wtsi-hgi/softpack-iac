@@ -1,7 +1,6 @@
 config:
   install_tree:
     root: ~/.spack
-  source_cache: ~/.spack/cache
-  view: false
+  source_cache: /opt/spack-cache
   template_dirs:
     - /opt/spack-templates

@@ -1,10 +1,14 @@
-builder_path: /opt/softpack-builder
+builder_path: /opt/softpack/builder
 builder_venv: "{{ builder_path }}/.venv"
 builder_config: "{{ ansible_env.HOME }}/.softpack/builder/config.yml"
 
-builder_repo: https://github.com/wtsi-hgi/softpack-builder.git
+builder_repo: https://github.com/wtsi-hgi/softpack-builder
 builder_version: develop
 
-prefect_home: /var/run/prefect
+templates_repo: https://github.com/wtsi-hgi/spack-templates
+templates_version: main
+templates_path: /opt/spack-templates
+
 prefect_profile: .prefect/profiles.toml
 prefect_profile_path: "{{ ansible_env.HOME }}/{{ prefect_profile }}"
+

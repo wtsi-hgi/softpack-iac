@@ -1,0 +1,9 @@
+spack_repo: https://github.com/wtsi-hgi/spack-repo
+spack_repo_version: main
+spack_repo_path: /opt/spack-repo
+
+templates_repo: https://github.com/wtsi-hgi/spack-templates
+templates_version: main
+templates_path: /opt/spack-templates
+
+

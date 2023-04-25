@@ -1,0 +1,21 @@
+- name: Install cmake
+  become: true
+  vars:
+    url: https://apt.kitware.com
+    key: "{{ url }}/keys/kitware-archive-latest.asc"
+    repo: "{{ url }}/ubuntu/"
+  block:
+    - name: Add kitware signing key
+      ansible.builtin.apt_key:
+        url: "{{ key }}"
+        state: present
+
+    - name: Add kitware repository
+      ansible.builtin.apt_repository:
+        repo: deb {{ repo }} focal main
+
+    - name: Install cmake
+      ansible.builtin.apt:
+        name: cmake
+        state: present
+        update_cache: true

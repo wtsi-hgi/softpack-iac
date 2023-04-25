@@ -79,7 +79,8 @@ resource "openstack_compute_instance_v2" "build-node" {
   }
   security_groups = [
     "cloudforms_icmp_in",
-    "cloudforms_ssh_in"
+    "cloudforms_ssh_in",
+    "cloudforms_web_in"
   ]
 }
 

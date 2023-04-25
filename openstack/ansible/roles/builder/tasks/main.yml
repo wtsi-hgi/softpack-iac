@@ -10,6 +10,10 @@
       mode: u=rwx,o=rx,g=rx
     - path: "{{ builder_config | dirname }}"
       mode: u=rwx,g=-,o=-
+    - path: "{{ spack.cache }}"
+      mode: u=rwx,o=rx,g=rx
+    - path: "{{ spack.environments }}"
+      mode: u=rwx,o=rx,g=rx
 
 - name: Clone git repo
   ansible.builtin.git:
@@ -32,10 +36,18 @@
     config:
       spack: "{{ spack }}"
       artifacts: "{{ artifacts }}"
+      singularity: "{{ singularity }}"
   ansible.builtin.copy:
     content: "{{ config | to_nice_yaml(indent=2) }}"
     dest: "{{ builder_config }}"
     mode: u=rw,g=-,o=-
+
+- name: Clone spack templates
+  ansible.builtin.git:
+    repo: "{{ templates_repo }}"
+    version: "{{ templates_version }}"
+    dest: "{{ templates_path }}"
+    accept_hostkey: true
 
 - name: Install dependencies
   ansible.builtin.command: "{{ builder_venv }}/bin/poetry install -E dev"
@@ -45,32 +57,29 @@
 
 - name: Setup prefect server
   become: true
-  vars:
-    systemd_lib: /lib/systemd/system
-    systemd_etc: /etc/systemd/system/multi-user.target.wants
-
   block:
     - name: Setup systemd services
       ansible.builtin.template:
-        src: "{{ item }}"
-        dest: "{{ systemd_lib }}"
+        src: files/lib/{{ item.path }}
+        dest: /lib/{{ item.path }}
         mode: u=rw,g=r,o=r
-      with_fileglob:
-        - files/*.service
+      with_filetree: files/lib
+      when: item.state == "file"
 
-    - name: Enable services
+    - name: Enable systemd service
       ansible.builtin.file:
-        src: "{{ systemd_lib }}/{{ item | basename }}"
-        dest: "{{ systemd_etc }}/{{ item | basename }}"
+        src: /lib/{{ item.path }}
+        dest: /etc/{{ item.path | dirname }}/multi-user.target.wants/{{ item.path | basename }}
         state: link
-      with_fileglob:
-        - files/*.service
+      with_filetree: files/lib
+      when: item.state == 'file'
 
     - name: Setup prefect server site
       ansible.builtin.copy:
-        src: files/prefect-server
-        dest: /etc/nginx/sites-available
+        src: files/etc/
+        dest: /etc
         mode: u=rw,g=r,o=r
+        directory_mode: u=rwx,o=rx,g=rx
 
     - name: Enable prefect server site
       ansible.builtin.file:
@@ -92,7 +101,6 @@
   ansible.builtin.shell: |
     source {{ builder_venv }}/bin/activate
     prefect config set PREFECT_API_URL=http://{{ hostname }}/api
-    prefect config set PREFECT_HOME={{ prefect_home }}
   args:
     executable: /bin/bash
     creates: "{{ prefect_profile_path }}"
@@ -113,4 +121,4 @@
     enabled: true
     state: started
   with_fileglob:
-    - files/*.service
+    - files/lib/systemd/system/*.service

@@ -1,9 +1,38 @@
 - name: Install spack
   become: true
   ansible.builtin.git:
-    repo: "{{ spack_repo }}"
+    repo: "{{ spack_src }}"
     version: "{{ spack_version }}"
     dest: "{{ spack_path }}"
+
+- name: Create directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ username }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - path: "{{ config.gpg }}"
+      mode: u=rwx,g=-,o=-
+    - path: "{{ spack_repo_path }}"
+      mode: u=rwx,o=rx,g=rx
+    - path: "{{ templates_path }}"
+      mode: u=rwx,o=rx,g=rx
+
+- name: Clone spack repo
+  ansible.builtin.git:
+    repo: "{{ spack_repo }}"
+    version: "{{ spack_repo_version }}"
+    dest: "{{ spack_repo_path }}"
+    accept_hostkey: true
+
+- name: Clone spack templates
+  ansible.builtin.git:
+    repo: "{{ templates_repo }}"
+    version: "{{ templates_version }}"
+    dest: "{{ templates_path }}"
+    accept_hostkey: true
 
 - name: Copy spack config
   become: "{{ item.become }}"
@@ -17,3 +46,12 @@
       become: true
     - dest: "{{ ansible_env.HOME }}"
       become: false
+
+- name: Create GPG key
+  vars:
+    name: softpack
+    email: "{{ name }}@{{ dns.domain }}"
+  ansible.builtin.shell: |
+    SPACK_GNUPGHOME={{ config.gpg }} {{ spack_path }}/bin/spack gpg create {{ name }} {{ email }}
+  args:
+    creates: "{{ config.gpg }}/trustdb.gpg"
